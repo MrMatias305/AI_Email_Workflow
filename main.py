@@ -47,6 +47,7 @@ def summarize_email(email):
     )
     return response.output_text.strip()
 
+
 # Set priority
 def determine_priority(email):
     response = client.responses.create(
@@ -71,6 +72,33 @@ def determine_priority(email):
     return response.output_text.strip()
 
 
+#Suggest an action to take
+def suggest_action(email):
+    response = client.responses.create(
+        model='gpt-5.5',
+        input=email,
+        instructions="""
+        Suggest the most appropriate action for the recipient of this email.
+        
+        Possible actions include:
+        - reply
+        - attend
+        - review
+        - pay
+        - complete
+        - ignore
+        - save
+        - schedule
+        - other
+        
+        Choose exactly one action.
+        
+        Return only the action.
+        """
+    )
+    return response.output_text.strip()
+
+
 email = """
 Subject: Interview scheduled for Monday
 
@@ -88,7 +116,9 @@ ABC Technologies
 category = classify_email(email)
 summary = summarize_email(email)
 priority = determine_priority(email)
+action = suggest_action(email)
 
 print("Category: ", category)
 print("Summary: ", summary)
 print("Priority: ", priority)
+print("Suggested Action: ", action)
