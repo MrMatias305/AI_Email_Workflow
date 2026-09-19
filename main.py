@@ -15,6 +15,7 @@ class AnalyzeEmail(BaseModel):
     action: str
 
 
+# Analyze the given email: category, summary, priority, and suggested action
 def analyze_email(email):
     response = client.responses.parse(
         model="gpt-5.5",
@@ -80,6 +81,23 @@ def analyze_email(email):
     return response.output_parsed
 
 
+# Workflow logic
+def process_email(email):
+    analysis = analyze_email(email)
+
+    if analysis.priority == "high":
+        status = "needs_attention"
+    elif analysis.priority == "ignore":
+        status = "no_action"
+    else:
+        status = "normal"
+
+    return {
+        "analysis": analysis,
+        "status": status
+    }
+
+
 email = """
 Subject: Interview scheduled for Monday
 
@@ -94,9 +112,10 @@ Best,
 ABC Technologies
 """
 
-result = analyze_email(email)
+result = process_email(email)
 
-print("Category: ", result.category)
-print("Summary: ", result.summary)
-print("Priority: ", result.priority)
-print("Action: ", result.action)
+print("Category: ", result['analysis'].category)
+print("Summary: ", result['analysis'].summary)
+print("Priority: ", result['analysis'].priority)
+print("Action: ", result['analysis'].action)
+print("Status: ", result['status'])
