@@ -1,9 +1,52 @@
+import os
 from dotenv import load_dotenv
 from openai import OpenAI
 
 load_dotenv()
 
-client = OpenAI()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# Classify email into a category
+# e.g., work, education, personal...
+def classify_email(email):
+    response = client.responses.create(
+        model='gpt-5.5',
+        input=email,
+        instructions="""
+        Classify the email into exactly one category.
+
+        Available categories:
+        - work
+        - education
+        - personal
+        - finance
+        - marketing
+        - career
+        - other
+
+        Return only the category name.
+        """
+    )
+
+    return response.output_text.strip()
+
+
+# Summarize email
+def summarize_email(email):
+    response = client.responses.create(
+        model='gpt-5.5',
+        input=email,
+        instructions="""
+        Summarize the following email in 1-2 concise sentences.
+        
+        Focus on:
+        - What the email is about
+        - Any important information
+        - Any action the recipient may need to take
+        """
+    )
+    return response.output_text.strip()
+
 
 email = """
 Subject: Interview scheduled for Monday
@@ -19,23 +62,8 @@ Best,
 ABC Technologies
 """
 
-response = client.responses.create(
-    model='gpt-5.5',
-    input=email,
-    instructions="""
-    Classify the email into exactly one category.
+category = classify_email(email)
+summary = summarize_email(email)
 
-    Available categories:
-    - work
-    - education
-    - personal
-    - finance
-    - marketing
-    - career
-    - other
-    
-    Return only the category name.
-    """
-)
-
-print("Category:", response.output_text)
+print(category)
+print(summary)
