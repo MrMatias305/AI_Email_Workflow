@@ -1,5 +1,4 @@
 import os
-from unittest import result
 
 from google.auth.transport import Request
 from google.oauth2.credentials import Credentials
