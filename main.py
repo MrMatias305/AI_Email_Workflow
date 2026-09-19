@@ -98,24 +98,37 @@ def process_email(email):
     }
 
 
-email = """
-Subject: Interview scheduled for Monday
+emails = [
+    """
+    Subject: Internship Interview
 
-Hi,
+    We would like to invite you to an interview
+    tomorrow at 10 AM. Please confirm your availability.
+    """,
 
-Thank you for applying for the AI Engineering Internship.
-We would like to invite you to an interview on Monday at 10:00 AM.
+    """
+    Subject: Assignment Deadline
 
-Please confirm your availability.
+    The deadline for your Enterprise Architecture
+    assignment has been extended until next Friday.
+    """,
 
-Best,
-ABC Technologies
-"""
+    """
+    Subject: Special Weekend Offer
 
-result = process_email(email)
+    Get 40% off all shoes this weekend!
+    Shop now before the offer ends.
+    """
+]
 
-print("Category: ", result['analysis'].category)
-print("Summary: ", result['analysis'].summary)
-print("Priority: ", result['analysis'].priority)
-print("Action: ", result['analysis'].action)
-print("Status: ", result['status'])
+# Batch processing
+for index, email in enumerate(emails, start=1):
+    result = process_email(email)
+    analysis = result['analysis']
+
+    print(f"\n--- EMAIL {index} ---")
+    print("Category: ", analysis.category)
+    print("Summary: ", analysis.summary)
+    print("Priority: ", analysis.priority)
+    print("Suggested Action: ", analysis.action)
+    print("Status: ", result['status'])
