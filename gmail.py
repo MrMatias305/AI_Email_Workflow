@@ -1,7 +1,7 @@
 import base64
 import os
 
-from google.auth.transport import Request
+from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
@@ -81,13 +81,13 @@ if __name__ == '__main__':
 
     results = gmail_service.users().messages().list(
         userId='me',
-        maxResults=3
+        maxResults=1
     ).execute()
 
     messages = results.get('messages', [])
 
     if messages:
-        message_id = messages[1]['id']
+        message_id = messages[0]['id']
         message = get_email(gmail_service, message_id)
         email = extract_message(message)
 

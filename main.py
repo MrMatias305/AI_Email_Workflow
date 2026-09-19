@@ -1,36 +1,40 @@
+from gmail import get_gmail_service, get_email, extract_message
 from workflow import process_email
 
-emails = [
-    """
-    Subject: Internship Interview
+def main():
+    service = get_gmail_service()
 
-    We would like to invite you to an interview
-    tomorrow at 10 AM. Please confirm your availability.
-    """,
+    results = service.users().messages().list(
+        userId='me',
+        maxResults=3
+    ).execute()
 
-    """
-    Subject: Assignment Deadline
+    messages = results.get('messages', [])
 
-    The deadline for your Enterprise Architecture
-    assignment has been extended until next Friday.
-    """,
+    if not messages:
+        print('No messages found.')
 
-    """
-    Subject: Special Weekend Offer
+    message_id = messages[2]['id']
 
-    Get 40% off all shoes this weekend!
-    Shop now before the offer ends.
-    """
-]
+    raw_message = get_email(service, message_id)
+    email = extract_message(raw_message)
 
+    result = process_email(f"""
+        Sender: {email['sender']}
+        Subject: {email['subject']}
 
-for index, email in enumerate(emails, start=1):
-    result = process_email(email)
+        Body: {email['body']}
+    """)
+
     analysis = result['analysis']
 
-    print(f"\n--- EMAIL {index} ---")
     print("Category: ", analysis.category)
     print("Summary: ", analysis.summary)
     print("Priority: ", analysis.priority)
     print("Suggested Action: ", analysis.action)
     print("Status: ", result['status'])
+
+
+if __name__ == '__main__':
+    main()
+
