@@ -1,3 +1,4 @@
+import base64
 import os
 
 from google.auth.transport import Request
@@ -37,6 +38,44 @@ def get_email(service, message_id):
     return message
 
 
+def extract_message(message):
+    headers = message['payload'].get('headers', [])
+
+    subject = ""
+    sender = ""
+
+    for header in headers:
+        if header['name'].lower() == 'subject':
+            subject = header['value']
+
+        if header['name'].lower() == 'from':
+            sender = header['value']
+
+    body = ""
+
+    payload = message['payload']
+
+    if 'body' in payload and payload['body'].get('data'):
+        data = payload['body']['data']
+        body = base64.urlsafe_b64decode(data).decode('utf-8')
+
+    elif 'parts' in payload:
+        for part in payload['parts']:
+            if part['mimeType'] == 'text/plain':
+                data = part['body'].get('data')
+
+                if data:
+                    body = base64.urlsafe_b64decode(data).decode('utf-8')
+                    break
+
+    return {
+        'id': message['id'],
+        'sender': sender,
+        'subject': subject,
+        'body': body,
+    }
+
+
 if __name__ == '__main__':
     gmail_service = get_gmail_service()
 
@@ -48,6 +87,10 @@ if __name__ == '__main__':
     messages = results.get('messages', [])
 
     if messages:
-        message_id = messages[0]['id']
+        message_id = messages[1]['id']
         message = get_email(gmail_service, message_id)
-        print(message)
+        email = extract_message(message)
+
+        print("Sender: ", email['sender'])
+        print("Subject: ", email['subject'])
+        print("Body: ", email['body'])
