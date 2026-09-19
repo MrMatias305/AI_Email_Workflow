@@ -47,6 +47,29 @@ def summarize_email(email):
     )
     return response.output_text.strip()
 
+# Set priority
+def determine_priority(email):
+    response = client.responses.create(
+        model='gpt-5.5',
+        input=email,
+        instructions="""
+        Determine the priority of this email.
+        
+        Choose exactly one:
+        - high
+        - medium
+        - low
+        
+        Guidelines:
+        - high: urgent, time-sensitive, or requires immediate action
+        - medium: important but not immediately urgent
+        - low: informational, optional, or promotional
+        
+        Return only the priority level.
+        """
+    )
+    return response.output_text.strip()
+
 
 email = """
 Subject: Interview scheduled for Monday
@@ -64,6 +87,8 @@ ABC Technologies
 
 category = classify_email(email)
 summary = summarize_email(email)
+priority = determine_priority(email)
 
-print(category)
-print(summary)
+print("Category: ", category)
+print("Summary: ", summary)
+print("Priority: ", priority)
