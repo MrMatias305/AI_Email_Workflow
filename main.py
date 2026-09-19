@@ -6,97 +6,24 @@ load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Classify email into a category
-# e.g., work, education, personal...
-def classify_email(email):
-    response = client.responses.create(
-        model='gpt-5.5',
+def analyze_email(email):
+    analysis = client.responses.create(
+        model="gpt-5.5",
         input=email,
         instructions="""
-        Classify the email into exactly one category.
-
-        Available categories:
-        - work
-        - education
-        - personal
-        - finance
-        - marketing
-        - career
-        - other
-
-        Return only the category name.
+        Analyze the given email.
+        
+        Return a JSON object with exactly these fields:
+        
+        - category: one of work, education, personal, finance, marketing, career, other
+        - summary: a concise 1-2 sentence summary
+        - priority: one of high, medium, low
+        - suggested_action: one of reply, attend, review, pay, complete, ignore, save, schedule, other
+        
+        Return exactly a single option for category, priority, and suggested action.
         """
     )
-
-    return response.output_text.strip()
-
-
-# Summarize email
-def summarize_email(email):
-    response = client.responses.create(
-        model='gpt-5.5',
-        input=email,
-        instructions="""
-        Summarize the following email in 1-2 concise sentences.
-        
-        Focus on:
-        - What the email is about
-        - Any important information
-        - Any action the recipient may need to take
-        """
-    )
-    return response.output_text.strip()
-
-
-# Set priority
-def determine_priority(email):
-    response = client.responses.create(
-        model='gpt-5.5',
-        input=email,
-        instructions="""
-        Determine the priority of this email.
-        
-        Choose exactly one:
-        - high
-        - medium
-        - low
-        
-        Guidelines:
-        - high: urgent, time-sensitive, or requires immediate action
-        - medium: important but not immediately urgent
-        - low: informational, optional, or promotional
-        
-        Return only the priority level.
-        """
-    )
-    return response.output_text.strip()
-
-
-#Suggest an action to take
-def suggest_action(email):
-    response = client.responses.create(
-        model='gpt-5.5',
-        input=email,
-        instructions="""
-        Suggest the most appropriate action for the recipient of this email.
-        
-        Possible actions include:
-        - reply
-        - attend
-        - review
-        - pay
-        - complete
-        - ignore
-        - save
-        - schedule
-        - other
-        
-        Choose exactly one action.
-        
-        Return only the action.
-        """
-    )
-    return response.output_text.strip()
+    return analysis.output_text.strip()
 
 
 email = """
@@ -113,12 +40,5 @@ Best,
 ABC Technologies
 """
 
-category = classify_email(email)
-summary = summarize_email(email)
-priority = determine_priority(email)
-action = suggest_action(email)
-
-print("Category: ", category)
-print("Summary: ", summary)
-print("Priority: ", priority)
-print("Suggested Action: ", action)
+output = analyze_email(email)
+print(output)
