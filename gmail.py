@@ -27,16 +27,27 @@ def get_gmail_service():
     return build('gmail', 'v1', credentials=creds)
 
 
+def get_email(service, message_id):
+    message = service.users().messages().get(
+        userId='me',
+        id=message_id,
+        format='full'
+    ).execute()
+
+    return message
+
+
 if __name__ == '__main__':
     gmail_service = get_gmail_service()
 
     results = gmail_service.users().messages().list(
         userId='me',
-        maxResults=5
+        maxResults=3
     ).execute()
 
     messages = results.get('messages', [])
 
-    print(f"Found {len(messages)} messages.")
-    for message in messages:
-        print(message['id'])
+    if messages:
+        message_id = messages[0]['id']
+        message = get_email(gmail_service, message_id)
+        print(message)
